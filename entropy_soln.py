@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import itertools as it
+from scipy import stats
+import json
 
 #WORD_LIST = os.path.join(DATA_DIR, "possible_words.txt")
 #WORD_FREQ_FILE = os.path.join(DATA_DIR, "short_freqs.txt")
@@ -27,7 +29,6 @@ with open("short_freqs.txt") as fp:
 
 arr = [0, 1, 2]
 pattern_combinations = np.array(list(it.product(arr, repeat=5)))
-print(list(it.combinations(arr, 2)))
 
 test_word_list = ["slear", "nrash", "realt", "crane"]
 test_comb = np.array([0,1,2,0,1])
@@ -38,70 +39,57 @@ def wordchecker(wordlist, test_word, pattern):
     output_d = {}
     for i in range(0,len(wordlist)):
         wordcheck = wordlist[i]
-        if 0 in pattern:
-            for item in np.where(pattern == 0)[0]:
-                if test_word[item] not in wordcheck:
-                    output_d[wordcheck] = True
+        equalmat = np.zeros(5)
 
-                    if 1 in pattern:
-                        # 0, 1
-                        for item in np.where(pattern == 1)[0]:
-                            if wordcheck[item] == test_word[item]:
-                                output_d[wordcheck] = True
+        # check 2s (you guess the exact word)
+        for item in np.where(pattern == 2)[0]:
+            if test_word[item] == wordcheck[item]:
+                equalmat[item] = 1
+            else:
+                equalmat[item] = 0
 
-                                # 0, 1, 2
-                                for item in np.where(pattern == 2)[0]:
-                                    if wordcheck[item] == test_word[item]:
-                                        output_d[wordcheck] = True
-                                    else:
-                                        output_d[wordcheck] = False
-                            else:
-                                output_d[wordcheck] = False
-                    else:
-                        # 0, 2
-                        for item in np.where(pattern == 2)[0]:
-                            if wordcheck[item] == test_word[item]:
-                                output_d[wordcheck] = True
-                            else:
-                                output_d[wordcheck] = False
+        # check for 1s
+        for item in np.where(pattern == 1)[0]:
+            if test_word[item] in wordcheck:
+                equalmat[item] = 1
+            else:
+                equalmat[item] = 0
 
-                else:
-                    output_d[wordcheck] = False
-        # check for 1 if no 0s found
-        elif 1 in pattern:
-            for item in np.where(pattern == 1)[0]:
-                if test_word[item] in wordcheck:
-                    output_d[wordcheck] = True
-
-                    # 1, 2
-                    for item in np.where(pattern == 2)[0]:
-                        if wordcheck[item] == test_word[item]:
-                            output_d[wordcheck] = True
-                        else:
-                            output_d[wordcheck] = False
-                else:
-                    output_d[wordcheck] = False
-
-        # only 2s remaining (you guess the exact word)
+        # check for 0s
+        for item in np.where(pattern == 0)[0]:
+            if test_word[item] not in wordcheck:
+                equalmat[item] = 1
+            else:
+                equalmat[item] = 0
+        if np.sum(equalmat) == 5:
+            output_d[wordcheck] = True
         else:
-            for item in np.where(pattern == 2)[0]:
-                if wordcheck[item] == test_word[item]:
-                    output_d[wordcheck] = True
-                else:
-                    output_d[wordcheck] = False
+            output_d[wordcheck] = False
     return output_d
 
-print(wordchecker(test_word_list, "crane", np.array([2,2,2,1,1])))
+#print(wordchecker(test_word_list, "crane", np.array([2,2,2,1,1])))
 
 def find_prob_distribution(wordlist, word):
     px = []
-    tot = len(pattern_combinations)
+    tot = float(len(wordlist))
     for pattern in pattern_combinations:
         wordcheck_d = wordchecker(wordlist, word, pattern)
         num_true = sum(wordcheck_d.values())
-        print(pattern)
-        print(num_true)
         px += [num_true/tot]
+        #print(tot)
     return np.array(px)
 #prob_dist = find_prob_distribution(test_word_list, "crane")
 #print(prob_dist)
+
+def create_entropy_data(possible_words):
+    ent = {}
+    for word in possible_words:
+        prob_dist = find_prob_distribution(WORD_LIST, word)
+        ent[word] = stats.entropy(prob_dist)
+    with open('word_entropy_initial.json', 'w+') as f:
+        # this would place the entire output on one line
+        # use json.dump(ent, f, indent=4) to "pretty-print" with four spaces per indent
+        json.dump(ent, f, indent=4)
+    return ent
+
+ent_1 = create_entropy_data(WORD_LIST)
