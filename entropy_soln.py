@@ -110,4 +110,4 @@ def create_entropy_data(possible_words):
         json.dump(ent, f, indent=4)
     return ent
 
-ent_1 = create_entropy_data(WORD_LIST)
+#ent_1 = create_entropy_data(WORD_LIST)
