@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 WORD_LIST = []
 
@@ -58,17 +59,6 @@ def wordchecker(wordlist, test_word, pattern):
     return output_d
 
 
-test_word = "crane"
-test_pattern = np.array([2,2,2,0,0])
-next_guess = [None, None, None, None, None]
-
-# Find next possible wordlist from given word and pattern that arises
-output_d = wordchecker(WORD_LIST, test_word, test_pattern)
-next_wordlist = []
-for word in output_d:
-    if output_d[word] == True:
-        next_wordlist += [word]
-print(next_wordlist)
 
 # Setup frequency database
 def freq_setup():
@@ -77,29 +67,29 @@ def freq_setup():
         freq[chr(ord('`')+i+1)] = np.zeros(5)
     return freq
 
-def letter_freq_suggestion(wordlist):
+def letter_freq_suggestion(wordlist, word_used, pattern_found):
     freq = freq_setup()
 
     for word in wordlist:
         for i in range(0,len(word)):
             freq[word[i]][i] = freq[word[i]][i] + 1
     # Only if initial guess gives us enough information
-    if np.sum(test_pattern)>=2:
+    if np.sum(pattern_found)>2:
 
-        for item in np.where(test_pattern == 2)[0]:
-            next_guess[item] = test_word[item]
+        for item in np.where(pattern_found == 2)[0]:
+            next_guess[item] = word_used[item]
 
-        for item in np.where(test_pattern == 1)[0]:
-            ind = np.argmax(freq[test_word[item]])
-            second_ind = freq[test_word[item]].argsort()[-2]
+        for item in np.where(pattern_found == 1)[0]:
+            ind = np.argmax(freq[word_used[item]])
+            second_ind = freq[word_used[item]].argsort()[-2]
             # ensure frequency suggestion of letter isn't in same place as any green
             if ind != item and next_guess[ind] == None:
-                next_guess[ind] = test_word[item]
+                next_guess[ind] = word_used[item]
             elif next_guess[second_ind]== None:
-                next_guess[second_ind] = test_word[item]
+                next_guess[second_ind] = word_used[item]
 
         print(next_guess)
-        # Find inidices where next_guess is NOT None
+        # Find indices where next_guess is NOT None
         l=[i for i,v in enumerate(next_guess) if v != None]
         available_words = []
 
@@ -111,12 +101,51 @@ def letter_freq_suggestion(wordlist):
                     match[n] = 1
             if np.sum(match) == len(l):
                 available_words += [word]
-        # sort letter_freq suggestions by entropy
+        # sort letter_freq suggestions by entropy as sorted wordlist is inputted
         print(available_words)
-        return
+
+        # if no suggestion available from letter frequency
+        if len(available_words) == 0:
+            # Select next word based on information entropy
+            return wordlist[0]
+        return available_words[0]
     else:
         print("Not enough information")
-        # Select next word based on information entropy
-        return
 
-letter_freq_suggestion(next_wordlist)
+        # Select next word based on information entropy
+        return wordlist[0]
+
+with open('word_entropy_initial.json') as json_file:
+    entropy_d = json.load(json_file)
+
+# Find next possible wordlist from given word and pattern that arises
+def find_probable_words(wordlist, word_used, pattern_found):
+    output_d = wordchecker(wordlist, word_used, pattern_found)
+    next_wordlist = []
+    next_wordlist_vals = []
+    for word in output_d:
+        if output_d[word] == True:
+            next_wordlist += [word]
+            next_wordlist_vals += [entropy_d[word]]
+    next_wordlist = np.array(next_wordlist)
+    next_wordlist_vals = -np.array(next_wordlist_vals)  # sort in descending order
+    next_wordlist_sorted = next_wordlist[next_wordlist_vals.argsort()]
+    return next_wordlist_sorted
+
+test_word = "raise"
+test_pattern = np.array([0,1,0,0,2])
+next_guess = [None, None, None, None, None]
+
+wordlist1 = find_probable_words(WORD_LIST, test_word, test_pattern)
+test_word1 = letter_freq_suggestion(wordlist1, test_word ,test_pattern)
+print(test_word1)
+pattern1 = np.array([0,0,1,2,2])
+
+wordlist2 = find_probable_words(wordlist1, test_word1, pattern1)
+test_word2 = letter_freq_suggestion(wordlist2, test_word1 , pattern1)
+print(test_word2)
+pattern2 = np.array([2,2,2,0,0])
+
+wordlist3 = find_probable_words(wordlist2, test_word2, pattern2)
+test_word3 = letter_freq_suggestion(wordlist3, test_word2 , pattern2)
+print(test_word3)
