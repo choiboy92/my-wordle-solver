@@ -32,59 +32,59 @@ def find(s, ch):
 arr = [0, 1, 2]
 pattern_combinations = np.array(list(it.product(arr, repeat=5)))
 
-test_word_list = ["steal", "crepe", "erase", "abide"]
+test_word_list = ["steal", "crepe", "erase", "abide", "irate"]
 test_comb = np.array([0,1,2,0,1])
 test_comb_d = [d[pattern] for pattern in test_comb]
+
+def patternmatch(wordcheck, test_word, pattern):
+    equalmat = np.zeros(5)
+    checkmat = np.zeros(5)
+
+    # check 2s (you guess the exact word)
+    for item in np.where(pattern == 2)[0]:
+        if test_word[item] == wordcheck[item]:
+            equalmat[item] = 1
+            checkmat[item] = 1
+        else:
+            return False
+
+    # check for 1s
+    for item in np.where(pattern == 1)[0]:  #2, 3, 4 (e, e, d)
+        if test_word[item] in wordcheck and test_word[item]!=wordcheck[item]:
+            ind = wordcheck.index(test_word[item])
+
+            if checkmat[ind] ==0:
+                checkmat[ind] =1
+                equalmat[item] = 1
+            elif len(find(wordcheck, test_word[item]))>1:
+                checkmat[wordcheck.index(test_word[item], ind +1)] =1
+                equalmat[item] = 1
+            else:
+                return False
+        else:
+            return False
+
+    # check for 0s
+    for item in np.where(pattern == 0)[0]:
+        if test_word[item] not in wordcheck:
+            equalmat[item] = 1
+        else:   #if letter in wordcheck
+            #check first instance of letter has been checked already
+            if checkmat[wordcheck.index(test_word[item])] == 1 and wordcheck.count(test_word[item])<2:
+                equalmat[item] = 1
+            else:
+                return False
+    if np.sum(equalmat) == 5:
+        return True
 
 def wordchecker(wordlist, test_word, pattern):
     # n.b. for loops won't run if number n (where pattern == n) isn't found
     output_d = {}
     for i in range(0,len(wordlist)):
-        wordcheck = wordlist[i]
-        equalmat = np.zeros(5)
-        checkmat = np.zeros(5)
-
-        # check 2s (you guess the exact word)
-        for item in np.where(pattern == 2)[0]:
-            if test_word[item] == wordcheck[item]:
-                equalmat[item] = 1
-                checkmat[item] = 1
-            else:
-                equalmat[item] = 0
-
-        # check for 1s
-        for item in np.where(pattern == 1)[0]:  #2, 3, 4 (e, e, d)
-            if test_word[item] in wordcheck and test_word[item]!=wordcheck[item]:
-                ind = wordcheck.index(test_word[item])
-
-                if checkmat[ind] ==0:
-                    checkmat[ind] =1
-                    equalmat[item] = 1
-                elif len(find(wordcheck, test_word[item]))>1:
-                    checkmat[wordcheck.index(test_word[item], ind +1)] =1
-                    equalmat[item] = 1
-                else:
-                    equalmat[item] = 0
-            else:
-                equalmat[item] = 0
-        # check for 0s
-        for item in np.where(pattern == 0)[0]:
-            if test_word[item] not in wordcheck:
-                equalmat[item] = 1
-            else:   #if letter in wordcheck
-                #check first instance of letter has been checked already
-                if checkmat[wordcheck.index(test_word[item])] == 1 and wordcheck.count(test_word[item])<2:
-                    equalmat[item] = 1
-                else:
-                    equalmat[item] = 0
-        print(equalmat)
-        if np.sum(equalmat) == 5:
-            output_d[wordcheck] = True
-        else:
-            output_d[wordcheck] = False
+        output_d[wordlist[i]] = patternmatch(wordlist[i], test_word, pattern)
     return output_d
 
-print(wordchecker(test_word_list, "speed", np.array([1,0,1,1,0])))
+#print(wordchecker(test_word_list, "crane", np.array([1,1,1,1,1])))
 
 def find_prob_distribution(wordlist, word):
     px = []
@@ -95,8 +95,9 @@ def find_prob_distribution(wordlist, word):
         px += [num_true/tot]
         #print(tot)
     return np.array(px)
-#prob_dist = find_prob_distribution(test_word_list, "crane")
+#prob_dist = find_prob_distribution(WORD_LIST, "stare")
 #print(prob_dist)
+#print(stats.entropy(prob_dist))
 
 def create_entropy_data(possible_words):
     ent = {}
@@ -109,4 +110,4 @@ def create_entropy_data(possible_words):
         json.dump(ent, f, indent=4)
     return ent
 
-#ent_1 = create_entropy_data(WORD_LIST)
+ent_1 = create_entropy_data(WORD_LIST)
