@@ -95,9 +95,9 @@ def find_prob_distribution(wordlist, word):
         px += [num_true/tot]
         #print(tot)
     return np.array(px)
-#prob_dist = find_prob_distribution(WORD_LIST, "stare")
-#print(prob_dist)
-#print(stats.entropy(prob_dist))
+prob_dist = find_prob_distribution(WORD_LIST, "stare")
+print(prob_dist)
+print(stats.entropy(prob_dist))
 
 def create_entropy_data(possible_words):
     ent = {}
@@ -110,4 +110,4 @@ def create_entropy_data(possible_words):
         json.dump(ent, f, indent=4)
     return ent
 
-ent_1 = create_entropy_data(WORD_LIST)
+#ent_1 = create_entropy_data(WORD_LIST)

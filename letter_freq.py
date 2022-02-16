@@ -73,8 +73,9 @@ def letter_freq_suggestion(wordlist, word_used, pattern_found):
     for word in wordlist:
         for i in range(0,len(word)):
             freq[word[i]][i] = freq[word[i]][i] + 1
-    # Only if initial guess gives us enough information and 1s exist
-    if np.sum(pattern_found)>2 and np.count_nonzero(pattern_found == 1)>0:
+
+    # Only if 1s exist
+    if np.count_nonzero(pattern_found == 1)>0:
 
         for item in np.where(pattern_found == 2)[0]:
             next_guess[item] = word_used[item]
@@ -151,10 +152,16 @@ while np.sum(pattern) != 10:
 
     actual_entropy = np.log2(1/(len(nextwordlist)/len(wordlist)))
     print("Actual entropy from guess: ", actual_entropy)
-    print("Expected entropy from guess: ", entropy_d[word])
+
     wordlist = nextwordlist
-    
-    test_word = letter_freq_suggestion(nextwordlist, word, pattern)
+    remaining_entropy = np.log2(len(nextwordlist))
+    print("Remaining entropy: ", remaining_entropy)
+
+
+    if remaining_entropy>2.5:
+        test_word = letter_freq_suggestion(nextwordlist, word, pattern)
+    else:
+        test_word = nextwordlist[0]
     print(test_word)
     word = test_word
     string = input("What pattern? (separate with spaces): ")
