@@ -103,11 +103,11 @@ def create_entropy_data(possible_words):
     ent = {}
     for word in possible_words:
         prob_dist = find_prob_distribution(WORD_LIST, word)
-        ent[word] = stats.entropy(prob_dist)
+        ent[word] = stats.entropy(prob_dist, base=2)
     with open('word_entropy_initial.json', 'w+') as f:
         # this would place the entire output on one line
         # use json.dump(ent, f, indent=4) to "pretty-print" with four spaces per indent
         json.dump(ent, f, indent=4)
     return ent
 
-#ent_1 = create_entropy_data(WORD_LIST)
+ent_1 = create_entropy_data(WORD_LIST)
