@@ -69,7 +69,7 @@ def freq_setup():
 
 def letter_freq_suggestion(wordlist, word_used, pattern_found):
     freq = freq_setup()
-
+    next_guess = [None, None, None, None, None]
     for word in wordlist:
         for i in range(0,len(word)):
             freq[word[i]][i] = freq[word[i]][i] + 1
@@ -115,6 +115,7 @@ def letter_freq_suggestion(wordlist, word_used, pattern_found):
         # Select next word based on information entropy
         return wordlist[0]
 
+# Load pre-computed entropies for each word
 with open('word_entropy_initial.json') as json_file:
     entropy_d = json.load(json_file)
 
@@ -132,20 +133,22 @@ def find_probable_words(wordlist, word_used, pattern_found):
     next_wordlist_sorted = next_wordlist[next_wordlist_vals.argsort()]
     return next_wordlist_sorted
 
-test_word = "raise"
-test_pattern = np.array([0,1,0,0,2])
-next_guess = [None, None, None, None, None]
 
-wordlist1 = find_probable_words(WORD_LIST, test_word, test_pattern)
-test_word1 = letter_freq_suggestion(wordlist1, test_word ,test_pattern)
-print(test_word1)
-pattern1 = np.array([0,0,1,2,2])
+## USER RUN
+# input initial guess word
+word1 = input("Initial word guess: ")
+pattern1 = np.array([0,2,0,0,0])
+# input initial pattern from guess
+string = input("What pattern? (separate with spaces): ")
+pattern = np.array(list(map(int, string.split(' '))))
 
-wordlist2 = find_probable_words(wordlist1, test_word1, pattern1)
-test_word2 = letter_freq_suggestion(wordlist2, test_word1 , pattern1)
-print(test_word2)
-pattern2 = np.array([2,2,2,0,0])
-
-wordlist3 = find_probable_words(wordlist2, test_word2, pattern2)
-test_word3 = letter_freq_suggestion(wordlist3, test_word2 , pattern2)
-print(test_word3)
+# begin loop
+word = word1
+wordlist = WORD_LIST
+while np.sum(pattern) != 10:
+    wordlist = find_probable_words(wordlist, word, pattern)
+    test_word = letter_freq_suggestion(wordlist, word, pattern)
+    print(test_word)
+    word = test_word
+    string = input("What pattern? (separate with spaces): ")
+    pattern = np.array(list(map(int, string.split(' '))))
