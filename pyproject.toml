@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "my-wordle-solver"
+version = "0.1.0"
+description = "Helping bad Wordle players everywhere"
+authors = ["Junho Choi <junhochoi13@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.6"
+numpy = "^1.23.4"
+scipy = "^1.9.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
