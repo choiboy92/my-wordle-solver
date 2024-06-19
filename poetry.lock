@@ -89,5 +89,5 @@ test = ["array-api-strict", "asv", "gmpy2", "hypothesis (>=6.30)", "mpmath", "po
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11.6"
-content-hash = "f9da489ed28dac1e158d851a3fe55fd5fa6bd17aac822683628b2a3d6d9f2c1a"
+python-versions = "3.11.6"
+content-hash = "aa898398695cff10e4b38b8851b20f4668489d9ec263522b7df6b191aecc1e6a"
