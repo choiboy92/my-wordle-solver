@@ -1,12 +1,6 @@
 import numpy as np
 import json
 
-WORD_LIST = []
-
-with open('data/possible_words.txt') as f:
-    for word in f.readlines():
-        WORD_LIST += [word.strip()]
-
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
 

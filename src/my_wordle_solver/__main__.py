@@ -1,11 +1,17 @@
 import click
 import numpy as np
 from termcolor import colored
-from my_wordle_solver.letter_freq import find_probable_words, letter_freq_suggestion, WORD_LIST
+from my_wordle_solver.letter_freq import find_probable_words, letter_freq_suggestion
+from . import WORD_LIST
 
 
-@click.command()
+@click.group()
+def main():
+    pass
+
+@main.command()
 def run_solver():
+    """This script runs the interactive wordle solver."""
     # input initial guess word
     word1 = input("Initial word guess: ")
 
@@ -38,10 +44,12 @@ def run_solver():
         pattern = np.array(list(map(int, string.split(' '))))
 
 
+@main.command()
+def entropy():
+    """This script calculates the entropies associated with each word"""
+    import entropy_soln
 
-def main():
-    run_solver()
-    pass
+
 
 if __name__ == '__main__':
     # execute only if run as the entry point into the program
