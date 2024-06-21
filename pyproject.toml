@@ -4,11 +4,17 @@ version = "0.1.0"
 description = "Helping bad Wordle players everywhere"
 authors = ["Junho Choi <junhochoi13@gmail.com>"]
 readme = "README.md"
+packages = [{include = "my_wordle_solver", from="src"}]
 
 [tool.poetry.dependencies]
 python = "3.11.6"
 numpy = "^1.23.4"
 scipy = "^1.9.3"
+click = "^8.1.7"
+termcolor = "^2.4.0"
+
+[tool.poetry.scripts]
+my-wordle-solver = "my_wordle_solver.__main__:main"
 
 
 [build-system]
