@@ -3,20 +3,31 @@
 A python script to solve Wordle challenges using a mixture of information entropy and letter frequency analysis to determine the best next guess.
 The script works by inputting the results from the first initial guess carried out by the user for the day's Wordle and suggests the best guess for the next attempt.
 
-## Usage
-### Setup
-Create a virtual environment and install the required packages:
+### Setup with Poetry
+Make sure you have Poetry installed and download the required dependencies:
 ```shell
-python -m venv venv
-. venv/bin/activate
-pip install -r requirements.txt
+poetry install
 ```
+
+### Usage
+```
+Usage: my-wordle-solver [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  entropy     This script calculates the entropies associated with each word
+  run-solver  This script runs the interactive wordle solver.
+```
+
 ### Running the script
 1. To begin the script, run the command for the script:
 ```shell
-python letter_freq.py
+poetry run my-wordle-solver run-solver
 ```
 2. Input the initial word guess
+
 3. Input the results of the initial guess - the user should input a series of space-separated numbers that indicate the results
 > - **0** - ⬜️ - no matching letters
 > - **1** - 🟨 - letter exists but not in correct place

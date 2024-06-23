@@ -1,14 +1,9 @@
 import numpy as np
 import json
-
-WORD_LIST = []
-
-with open('possible_words.txt') as f:
-    for word in f.readlines():
-        WORD_LIST += [word.strip()]
-
-def find(s, ch):
-    return [i for i, ltr in enumerate(s) if ltr == ch]
+import click
+from termcolor import colored
+from utilities.constants import WORD_LIST
+from utilities.common import find
 
 def patternmatch(wordcheck, test_word, pattern):
     equalmat = np.zeros(5)
@@ -89,7 +84,7 @@ def letter_freq_suggestion(wordlist, word_used, pattern_found):
             elif next_guess[second_ind]== None:
                 next_guess[second_ind] = word_used[item]
 
-        print(next_guess)
+        # print(next_guess)
         # Find indices where next_guess is NOT None
         l=[i for i,v in enumerate(next_guess) if v != None]
         available_words = []
@@ -103,7 +98,7 @@ def letter_freq_suggestion(wordlist, word_used, pattern_found):
             if np.sum(match) == len(l):
                 available_words += [word]
         # sort letter_freq suggestions by entropy as sorted wordlist is inputted
-        print(available_words)
+        # print(available_words)
 
         # if no suggestion available from letter frequency
         if len(available_words) == 0:
@@ -117,7 +112,7 @@ def letter_freq_suggestion(wordlist, word_used, pattern_found):
         return wordlist[0]
 
 # Load pre-computed entropies for each word
-with open('word_entropy_initial.json') as json_file:
+with open('data/word_entropy_initial.json') as json_file:
     entropy_d = json.load(json_file)
 
 # Find next possible wordlist from given word and pattern that arises
@@ -135,34 +130,27 @@ def find_probable_words(wordlist, word_used, pattern_found):
     return next_wordlist_sorted
 
 
-## USER RUN
-# input initial guess word
-word1 = input("Initial word guess: ")
-pattern1 = np.array([0,2,0,0,0])
-# input initial pattern from guess
-string = input("What pattern? (separate with spaces): ")
-pattern = np.array(list(map(int, string.split(' '))))
+def run(start_word, pattern):
+    # begin loop
+    word = start_word
+    wordlist = WORD_LIST
+    while np.sum(pattern) != 10:
+        nextwordlist = find_probable_words(wordlist, word, pattern)
+        # print(nextwordlist)
 
-# begin loop
-word = word1
-wordlist = WORD_LIST
-while np.sum(pattern) != 10:
-    nextwordlist = find_probable_words(wordlist, word, pattern)
-    print(nextwordlist)
+        actual_entropy = np.log2(1/(len(nextwordlist)/len(wordlist)))
+        click.echo(colored(f"Actual entropy from guess: {actual_entropy}", "yellow"), color=True)
 
-    actual_entropy = np.log2(1/(len(nextwordlist)/len(wordlist)))
-    print("Actual entropy from guess: ", actual_entropy)
-
-    wordlist = nextwordlist
-    remaining_entropy = np.log2(len(nextwordlist))
-    print("Remaining entropy: ", remaining_entropy)
+        wordlist = nextwordlist
+        remaining_entropy = np.log2(len(nextwordlist))
+        click.echo(colored(f"Remaining entropy: {remaining_entropy}", "yellow"), color=True)
 
 
-    if remaining_entropy>2.5:
-        test_word = letter_freq_suggestion(nextwordlist, word, pattern)
-    else:
-        test_word = nextwordlist[0]
-    print(test_word)
-    word = test_word
-    string = input("What pattern? (separate with spaces): ")
-    pattern = np.array(list(map(int, string.split(' '))))
+        if remaining_entropy>2.5:
+            test_word = letter_freq_suggestion(nextwordlist, word, pattern)
+        else:
+            test_word = nextwordlist[0]
+        click.echo(colored(test_word, "green"), color=True)
+        word = test_word
+        string = input("What pattern? (separate with spaces): ")
+        pattern = np.array(list(map(int, string.split(' '))))
