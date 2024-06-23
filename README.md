@@ -24,7 +24,7 @@ Commands:
 ### Running the script
 1. To begin the script, run the command for the script:
 ```shell
-poetry run my-wordle-solver solver
+poetry run my-wordle-solver run-solver
 ```
 2. Input the initial word guess
 
