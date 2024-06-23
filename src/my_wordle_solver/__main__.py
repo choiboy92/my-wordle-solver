@@ -1,7 +1,7 @@
 import click
-from my_wordle_solver.solver import run
 import numpy as np
-
+import my_wordle_solver.solver as solver
+import my_wordle_solver.entropy_soln as entropy_soln
 
 @click.group()
 def main():
@@ -16,16 +16,18 @@ def run_solver():
     # input initial pattern from guess
     string = input("What pattern? (separate with spaces): ")
     pattern = np.array(list(map(int, string.split(' '))))
-    run(word1, pattern)
+    solver.run(word1, pattern)
     
 
-
 @main.command()
-def entropy():
+@click.option('--test', help='word to find probabilty distribution for')
+def entropy(test):
     """This script calculates the entropies associated with each word"""
-    import entropy_soln
-
-
+    if test:
+        entropy_soln.test_word(test)
+    else:
+        entropy_soln.run()
+    
 
 if __name__ == '__main__':
     # execute only if run as the entry point into the program

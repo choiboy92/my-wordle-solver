@@ -1,8 +1,8 @@
 import numpy as np
 from scipy import stats
 import json
-from utilities.common import WORD_LIST, PATTERN_COMBINATIONS
-import utilities.common
+from utilities.constants import WORD_LIST, PATTERN_COMBINATIONS
+from utilities.common import find
 
 # NUMBERS TO PATTERN TRANSLATION
 # d = {0: "NO", 1: "IN-WORD", 2: "EXACT"}
@@ -27,7 +27,7 @@ def patternmatch(wordcheck, test_word, pattern):
             if checkmat[ind] ==0:
                 checkmat[ind] =1
                 equalmat[item] = 1
-            elif len(utilities.common.find(wordcheck, test_word[item]))>1:
+            elif len(find(wordcheck, test_word[item]))>1:
                 checkmat[wordcheck.index(test_word[item], ind +1)] =1
                 equalmat[item] = 1
             else:
@@ -87,6 +87,11 @@ def create_entropy_data(possible_words):
 
 #print(wordchecker(test_word_list, "crane", np.array([1,1,1,1,1])))
 
-prob_dist = find_prob_distribution(WORD_LIST, "stare")
-print(prob_dist)
-print(stats.entropy(prob_dist))
+def test_word(word):
+    prob_dist = find_prob_distribution(WORD_LIST, word)
+
+    print(stats.entropy(prob_dist))
+    print(word)
+
+def run():
+    print("entropy_soln run is called")
