@@ -2,10 +2,8 @@ import numpy as np
 import json
 import click
 from termcolor import colored
-from . import WORD_LIST
-
-def find(s, ch):
-    return [i for i, ltr in enumerate(s) if ltr == ch]
+from utilities.constants import WORD_LIST
+import utilities.common
 
 def patternmatch(wordcheck, test_word, pattern):
     equalmat = np.zeros(5)
@@ -27,7 +25,7 @@ def patternmatch(wordcheck, test_word, pattern):
             if checkmat[ind] ==0:
                 checkmat[ind] =1
                 equalmat[item] = 1
-            elif len(find(wordcheck, test_word[item]))>1:
+            elif len(utilities.common.find(wordcheck, test_word[item]))>1:
                 checkmat[wordcheck.index(test_word[item], ind +1)] =1
                 equalmat[item] = 1
             else:
