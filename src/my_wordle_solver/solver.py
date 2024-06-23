@@ -1,5 +1,8 @@
 import numpy as np
 import json
+import click
+from termcolor import colored
+from . import WORD_LIST
 
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
@@ -127,3 +130,29 @@ def find_probable_words(wordlist, word_used, pattern_found):
     next_wordlist_vals = -np.array(next_wordlist_vals)  # sort in descending order
     next_wordlist_sorted = next_wordlist[next_wordlist_vals.argsort()]
     return next_wordlist_sorted
+
+
+def run(start_word, pattern):
+    # begin loop
+    word = start_word
+    wordlist = WORD_LIST
+    while np.sum(pattern) != 10:
+        nextwordlist = find_probable_words(wordlist, word, pattern)
+        # print(nextwordlist)
+
+        actual_entropy = np.log2(1/(len(nextwordlist)/len(wordlist)))
+        click.echo(colored(f"Actual entropy from guess: {actual_entropy}", "yellow"), color=True)
+
+        wordlist = nextwordlist
+        remaining_entropy = np.log2(len(nextwordlist))
+        click.echo(colored(f"Remaining entropy: {remaining_entropy}", "yellow"), color=True)
+
+
+        if remaining_entropy>2.5:
+            test_word = letter_freq_suggestion(nextwordlist, word, pattern)
+        else:
+            test_word = nextwordlist[0]
+        click.echo(colored(test_word, "green"), color=True)
+        word = test_word
+        string = input("What pattern? (separate with spaces): ")
+        pattern = np.array(list(map(int, string.split(' '))))
